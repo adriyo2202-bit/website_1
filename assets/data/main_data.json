@@ -1,0 +1,94 @@
+{
+  "categories": [
+    {
+      "title": "Cafeteria",
+      "dataKey": "cafeterias",
+      "emoji": "🍱",
+      "subtitlePart1": "Add some details about ",
+      "highlightedWord1": "cafeterias",
+      "subtitlePart2": "\npresent in ",
+      "highlightedWord2": "campus"
+    },
+    {
+      "title": "Department",
+      "dataKey": "departments",
+      "emoji": "🏛️",
+      "subtitlePart1": "Add more ",
+      "highlightedWord1": "departments",
+      "subtitlePart2": " in\n",
+      "highlightedWord2": "NIT Durgapur"
+    },
+    {
+      "title": "Fest",
+      "dataKey": "fests",
+      "emoji": "🎪",
+      "subtitlePart1": "Add some ",
+      "highlightedWord1": "fest",
+      "subtitlePart2": " organized in\n",
+      "highlightedWord2": "NIT Durgapur"
+    },
+    {
+      "title": "Club",
+      "dataKey": "clubs",
+      "emoji": "🌍",
+      "subtitlePart1": "Add some more details\nabout ",
+      "highlightedWord1": "clubs",
+      "subtitlePart2": " in ",
+      "highlightedWord2": "NIT Durgapur"
+    },
+    {
+      "title": "Staff",
+      "dataKey": "staff",
+      "emoji": "👨‍💼",
+      "subtitlePart1": "Add some more details\nabout ",
+      "highlightedWord1": "stuffs",
+      "subtitlePart2": " in ",
+      "highlightedWord2": "NIT Durgapur"
+    },
+    {
+      "title": "Hostel",
+      "dataKey": "hostels",
+      "emoji": "🏨",
+      "subtitlePart1": "Add some details\nabout ",
+      "highlightedWord1": "hostels",
+      "subtitlePart2": "",
+      "highlightedWord2": ""
+    },
+    {
+      "title": "Office/ Class Room",
+      "dataKey": "rooms",
+      "emoji": "🏫",
+      "subtitlePart1": "Add some ",
+      "highlightedWord1": "class room/ office",
+      "subtitlePart2": " details",
+      "highlightedWord2": ""
+    },
+    {
+      "title": "Place",
+      "dataKey": "places",
+      "emoji": "📍",
+      "subtitlePart1": "Add some ",
+      "highlightedWord1": "places",
+      "subtitlePart2": " details",
+      "highlightedWord2": ""
+    },
+    {
+      "title": "Student Body",
+      "dataKey": "studentBody",
+      "emoji": "👥",
+      "subtitlePart1": "",
+      "highlightedWord1": "Student body",
+      "subtitlePart2": " of ",
+      "highlightedWord2": "NIT Durgapur"
+    }
+  ],
+  "cafeterias": [],
+  "departments": [],
+  "fests": [],
+  "clubs": [],
+  "staff": [],
+  "hostels": [],
+  "rooms": [],
+  "places": [],
+  "studentBody": []
+}
