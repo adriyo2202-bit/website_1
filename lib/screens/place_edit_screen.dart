@@ -136,7 +136,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> with SingleTickerProv
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
       "images": _localImagePaths,
-      "locationCord": _locationCoords,
+      "location": _locationCoords,
       "description": _descController.text.trim(),
     };
     

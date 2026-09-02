@@ -24,7 +24,7 @@ class _FestEditScreenState extends State<FestEditScreen> with SingleTickerProvid
   List<String> _localImagePaths = [];
   
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _monthController = TextEditingController();
+  String? _selectedMonth;
   final TextEditingController _descController = TextEditingController();
   
   List<TextEditingController> _organizerControllers = [TextEditingController()];
@@ -47,7 +47,7 @@ class _FestEditScreenState extends State<FestEditScreen> with SingleTickerProvid
     if (widget.existingItem != null) {
       final item = widget.existingItem!;
       _nameController.text = item['name'] ?? '';
-      _monthController.text = item['month'] ?? '';
+      _selectedMonth = const ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].contains(item['month']) ? item['month'] : null;
       _descController.text = item['description'] ?? '';
       
       if (item['images'] != null) {
@@ -68,7 +68,6 @@ class _FestEditScreenState extends State<FestEditScreen> with SingleTickerProvid
   void dispose() {
     _bgAnimController.dispose();
     _nameController.dispose();
-    _monthController.dispose();
     _descController.dispose();
     for (var c in _organizerControllers) { c.dispose(); }
     super.dispose();
@@ -112,7 +111,7 @@ class _FestEditScreenState extends State<FestEditScreen> with SingleTickerProvid
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
       "images": _localImagePaths,
-      "month": _monthController.text.trim(),
+      "festMonth": _selectedMonth ?? "Jan",
       "organizers": getValues(_organizerControllers),
       "description": _descController.text.trim(),
     };
@@ -131,6 +130,40 @@ class _FestEditScreenState extends State<FestEditScreen> with SingleTickerProvid
     }
   }
   
+  Widget _buildGradientDropdown({
+    required String? value,
+    required String hint,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE8F6ED), Color(0xFFFBE4EA)],
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black87),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          hint: Text(hint, style: TextStyle(color: Colors.grey.shade600)),
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, style: const TextStyle(color: Colors.black87)),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
   Widget _buildGradientTextField({
     required String hint, 
     required TextEditingController controller, 
@@ -358,7 +391,12 @@ class _FestEditScreenState extends State<FestEditScreen> with SingleTickerProvid
                   _buildGradientTextField(hint: "Name of the fest", controller: _nameController),
                   
                   _buildLabel("Fest Month"),
-                  _buildGradientTextField(hint: "Select fest month", controller: _monthController),
+                  _buildGradientDropdown(
+                    value: _selectedMonth,
+                    hint: "Select month",
+                    items: const ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    onChanged: (val) => setState(() => _selectedMonth = val),
+                  ),
                   
                   _buildLabel("Description"),
                   _buildGradientTextField(hint: "Add some description", controller: _descController, maxLines: 5),

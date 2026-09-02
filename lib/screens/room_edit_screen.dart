@@ -26,7 +26,7 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
   List<String> _localImagePaths = [];
   
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _roomTypeController = TextEditingController();
+  String? _selectedRoomType;
   final TextEditingController _roomNumberController = TextEditingController();
   final TextEditingController _buildingController = TextEditingController();
   final TextEditingController _floorController = TextEditingController();
@@ -46,7 +46,7 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
     )..repeat();
     
     if (widget.defaultRoomType != null) {
-      _roomTypeController.text = widget.defaultRoomType!;
+      _selectedRoomType = const ["ClassRoom", "Office"].contains(widget.defaultRoomType) ? widget.defaultRoomType : null;
     }
     
     _initializeData();
@@ -56,7 +56,7 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
     if (widget.existingItem != null) {
       final item = widget.existingItem!;
       _nameController.text = item['name'] ?? '';
-      _roomTypeController.text = item['roomType'] ?? '';
+      _selectedRoomType = item['roomType'];
       _roomNumberController.text = item['roomNumber'] ?? '';
       _buildingController.text = item['buildingName'] ?? '';
       _floorController.text = item['floor']?.toString() ?? '';
@@ -77,7 +77,6 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
   void dispose() {
     _bgAnimController.dispose();
     _nameController.dispose();
-    _roomTypeController.dispose();
     _roomNumberController.dispose();
     _buildingController.dispose();
     _floorController.dispose();
@@ -119,9 +118,9 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
     final data = await DataService.loadData();
     final currentList = data[widget.dataKey] as List? ?? [];
     
-    Map<String, double>? locationObj;
+    List<double>? _locationCoords;
     if (_selectedLocation != null) {
-      locationObj = {"lat": 23.5478, "lng": 87.2931};
+      _locationCoords = [23.5478, 87.2931];
     }
     
     final newItem = {
@@ -130,9 +129,9 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
       "roomNumber": _roomNumberController.text.trim(),
       "floor": int.tryParse(_floorController.text.trim()) ?? 0,
       "buildingName": _buildingController.text.trim(),
-      "roomType": _roomTypeController.text.trim(),
+      "roomType": _selectedRoomType ?? "ClassRoom",
       "images": _localImagePaths,
-      "location": locationObj,
+      "location": _locationCoords,
       "description": _descController.text.trim(),
     };
     
@@ -150,9 +149,44 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
     }
   }
   
+  Widget _buildGradientDropdown({
+    required String? value,
+    required String hint,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE8F6ED), Color(0xFFFBE4EA)],
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black87),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          hint: Text(hint, style: TextStyle(color: Colors.grey.shade600)),
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, style: const TextStyle(color: Colors.black87)),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
   Widget _buildGradientTextField({
     required String hint, 
     required TextEditingController controller, 
+    int maxLines = 1,
     TextInputType? keyboardType,
   }) {
     return Container(
@@ -166,6 +200,7 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
       ),
       child: TextField(
         controller: controller,
+        maxLines: maxLines,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,
@@ -364,7 +399,12 @@ class _RoomEditScreenState extends State<RoomEditScreen> with SingleTickerProvid
                   ),
                   
                   _buildLabel("Room Type"),
-                  _buildGradientTextField(hint: "Type of the room", controller: _roomTypeController),
+                  _buildGradientDropdown(
+                    value: _selectedRoomType,
+                    hint: "Select room type",
+                    items: const ["ClassRoom", "Office"],
+                    onChanged: (val) => setState(() => _selectedRoomType = val),
+                  ),
                   
                   _buildLabel("Room Number"),
                   _buildGradientTextField(hint: "Room number", controller: _roomNumberController),

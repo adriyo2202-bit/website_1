@@ -141,8 +141,8 @@ class _LaboratoryEditScreenState extends State<LaboratoryEditScreen> with Single
       "name": _nameController.text.trim(),
       "images": _localImagePaths,
       "buildingName": _buildingController.text.trim(),
-      "locationCord": _locationCoords,
-      "floor": _floorController.text.trim(),
+      "location": _locationCoords,
+      "floor": int.tryParse(_floorController.text.trim()) ?? 0,
       "description": _descController.text.trim(),
     };
     

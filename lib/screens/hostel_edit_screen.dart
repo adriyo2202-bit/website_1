@@ -25,9 +25,9 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
   
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _hallNumController = TextEditingController();
-  final TextEditingController _typeController = TextEditingController();
+  String? _selectedHostelType;
   final TextEditingController _capacityController = TextEditingController();
-  List<TextEditingController> _allocatedControllers = [TextEditingController()];
+  List<String?> _allocatedSelections = [null];
   final TextEditingController _descController = TextEditingController();
   
   String? _selectedLocation;
@@ -51,7 +51,7 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
       final item = widget.existingItem!;
       _nameController.text = item['name'] ?? '';
       _hallNumController.text = item['hallNo']?.toString() ?? '';
-      _typeController.text = item['hostelType'] ?? '';
+      _selectedHostelType = const ["Boys", "Girls", "Co-Ed"].contains(item['hostelType']) ? item['hostelType'] : null;
       _capacityController.text = item['hallCapacity']?.toString() ?? '';
       _descController.text = item['description'] ?? '';
       
@@ -65,10 +65,12 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
       }
       
       if (item['allocatedFor'] != null) {
+      _allocatedSelections.clear();
         final list = item['allocatedFor'] as List;
         if (list.isNotEmpty) {
-          _allocatedControllers.clear();
-          _allocatedControllers.addAll(list.map((c) => TextEditingController(text: c.toString())));
+          _allocatedSelections.clear();
+          _allocatedSelections.addAll(list.map((c) => c.toString()));
+      if (_allocatedSelections.isEmpty) _allocatedSelections = [null];
         }
       }
     }
@@ -79,11 +81,9 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
     _bgAnimController.dispose();
     _nameController.dispose();
     _hallNumController.dispose();
-    _typeController.dispose();
     _capacityController.dispose();
     _descController.dispose();
-    for (var c in _allocatedControllers) { c.dispose(); }
-    super.dispose();
+        super.dispose();
   }
 
   Future<void> _pickImages() async {
@@ -126,20 +126,20 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
     }
     
     // Parse location string dummy
-    Map<String, double>? locationObj;
+    List<double>? _locationCoords;
     if (_selectedLocation != null) {
-      locationObj = {"lat": 23.5478, "lng": 87.2931};
+      _locationCoords = [23.5478, 87.2931];
     }
     
     final newItem = {
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
       "hallNo": int.tryParse(_hallNumController.text.trim()) ?? 0,
-      "hostelType": _typeController.text.trim(),
+      "hostelType": _selectedHostelType ?? "Boys",
       "hallCapacity": int.tryParse(_capacityController.text.trim()) ?? 0,
       "images": _localImagePaths,
-      "allocatedFor": getValues(_allocatedControllers),
-      "location": locationObj,
+      "allocatedFor": _allocatedSelections.where((v) => v != null).toList(),
+      "location": _locationCoords,
       "description": _descController.text.trim(),
     };
     
@@ -157,6 +157,40 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
     }
   }
   
+  Widget _buildGradientDropdown({
+    required String? value,
+    required String hint,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE8F6ED), Color(0xFFFBE4EA)],
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black87),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          hint: Text(hint, style: TextStyle(color: Colors.grey.shade600)),
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, style: const TextStyle(color: Colors.black87)),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
   Widget _buildGradientTextField({
     required String hint, 
     required TextEditingController controller, 
@@ -387,12 +421,50 @@ class _HostelEditScreenState extends State<HostelEditScreen> with SingleTickerPr
                   _buildGradientTextField(hint: "Hostel Number", controller: _hallNumController, keyboardType: TextInputType.number),
                   
                   _buildLabel("Hostel Type"),
-                  _buildGradientTextField(hint: "Type of Hostel", controller: _typeController),
+                  _buildGradientDropdown(
+                    value: _selectedHostelType,
+                    hint: "Select hostel type",
+                    items: const ["Boys", "Girls", "Co-Ed"],
+                    onChanged: (val) => setState(() => _selectedHostelType = val),
+                  ),
                   
                   _buildLabel("Hostel Capacity"),
                   _buildGradientTextField(hint: "Capacity of Hostel", controller: _capacityController, keyboardType: TextInputType.number),
                   
-                  _buildDynamicListSection("Allocated For", "Allocated for", _allocatedControllers),
+                  
+                  _buildLabel("Allocated For"),
+                  ...List.generate(_allocatedSelections.length, (index) {
+                    return _buildGradientDropdown(
+                      value: _allocatedSelections[index],
+                      hint: "Select year",
+                      items: const ["B.Tech 1st", "B.Tech 2nd", "B.Tech 3rd", "B.Tech 4th", "M.Tech 1st", "M.Tech 2nd", "PhD"],
+                      onChanged: (val) {
+                        setState(() {
+                          _allocatedSelections[index] = val;
+                        });
+                      },
+                    );
+                  }),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _allocatedSelections.add(null);
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+                        margin: const EdgeInsets.only(bottom: 16, top: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE5D5F5),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: Colors.black87),
+                        ),
+                        child: const Text("+ Add Year", style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+
                   
                   _buildLabel("Location"),
                   GestureDetector(

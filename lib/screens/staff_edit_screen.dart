@@ -109,10 +109,10 @@ class _StaffEditScreenState extends State<StaffEditScreen> with SingleTickerProv
     final newItem = {
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
-      "images": _localImagePath != null ? [_localImagePath] : [],
-      "contacts": getValues(_contactControllers),
-      "emails": getValues(_emailControllers),
-      "institutePositions": getValues(_instPosControllers),
+      "image": _localImagePath ?? "",
+      "contactNum": getValues(_contactControllers),
+      "contactEmail": getValues(_emailControllers),
+      "institutePos": getValues(_instPosControllers),
     };
     
     if (widget.itemIndex != null && widget.itemIndex! < currentList.length) {

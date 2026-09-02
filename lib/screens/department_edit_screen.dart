@@ -146,11 +146,13 @@ class _DepartmentEditScreenState extends State<DepartmentEditScreen> with Single
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
       "images": _localImagePaths,
-      "locationCord": _locationCoords,
+      "location": _locationCoords,
       "buildingName": _buildingController.text.trim(),
-      "hodName": _hodNameController.text.trim(),
-      "hodContact": _hodContactController.text.trim(),
-      "hodEmail": _hodEmailController.text.trim(),
+      "HoD": {
+        "name": _hodNameController.text.trim(),
+        "email": _hodEmailController.text.trim(),
+        "contact": _hodContactController.text.trim(),
+      },
       "description": _descController.text.trim(),
     };
     

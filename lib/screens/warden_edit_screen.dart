@@ -109,10 +109,10 @@ class _WardenEditScreenState extends State<WardenEditScreen> with SingleTickerPr
     final newItem = {
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
-      "images": _localImagePath != null ? [_localImagePath] : [],
+      "image": _localImagePath ?? "",
       "department": _departmentController.text.trim(),
-      "contacts": getValues(_contactControllers),
-      "emails": getValues(_emailControllers),
+      "contactNumber": getValues(_contactControllers),
+      "email": getValues(_emailControllers),
     };
     
     if (widget.itemIndex != null && widget.itemIndex! < currentList.length) {

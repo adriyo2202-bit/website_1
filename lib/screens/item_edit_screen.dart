@@ -145,7 +145,7 @@ class _ItemEditScreenState extends State<ItemEditScreen> with SingleTickerProvid
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
       "images": _localImagePaths,
-      "locationCord": _locationCoords,
+      "location": _locationCoords,
       "contact": _contactControllers.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList(),
       "description": _descController.text.trim(),
     };

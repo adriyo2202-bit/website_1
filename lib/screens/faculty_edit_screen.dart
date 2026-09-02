@@ -23,7 +23,7 @@ class _FacultyEditScreenState extends State<FacultyEditScreen> with SingleTicker
   String? _localImagePath;
   
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _positionController = TextEditingController();
+  String? _selectedPosition;
   
   List<TextEditingController> _contactControllers = [TextEditingController()];
   List<TextEditingController> _emailControllers = [TextEditingController()];
@@ -48,7 +48,7 @@ class _FacultyEditScreenState extends State<FacultyEditScreen> with SingleTicker
     if (widget.existingItem != null) {
       final item = widget.existingItem!;
       _nameController.text = item['name'] ?? '';
-      _positionController.text = item['position'] ?? '';
+      _selectedPosition = const ["Assistant Professor", "Associate Professor", "Professor"].contains(item['position']) ? item['position'] : null;
       
       if (item['images'] != null && (item['images'] as List).isNotEmpty) {
         _localImagePath = (item['images'] as List).first.toString();
@@ -75,7 +75,6 @@ class _FacultyEditScreenState extends State<FacultyEditScreen> with SingleTicker
   void dispose() {
     _bgAnimController.dispose();
     _nameController.dispose();
-    _positionController.dispose();
     for (var c in _contactControllers) { c.dispose(); }
     for (var c in _emailControllers) { c.dispose(); }
     for (var c in _domainControllers) { c.dispose(); }
@@ -114,11 +113,11 @@ class _FacultyEditScreenState extends State<FacultyEditScreen> with SingleTicker
     final newItem = {
       "id": widget.existingItem?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       "name": _nameController.text.trim(),
-      "images": _localImagePath != null ? [_localImagePath] : [],
-      "position": _positionController.text.trim(),
-      "contacts": getValues(_contactControllers),
-      "emails": getValues(_emailControllers),
-      "domains": getValues(_domainControllers),
+      "image": _localImagePath ?? "",
+      "position": _selectedPosition ?? "Assistant Professor",
+      "contactNumber": getValues(_contactControllers),
+      "email": getValues(_emailControllers),
+      "interestedDomain": getValues(_domainControllers),
       "institutePositions": getValues(_instPosControllers),
     };
     
@@ -136,6 +135,40 @@ class _FacultyEditScreenState extends State<FacultyEditScreen> with SingleTicker
     }
   }
   
+  Widget _buildGradientDropdown({
+    required String? value,
+    required String hint,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE8F6ED), Color(0xFFFBE4EA)],
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black87),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          hint: Text(hint, style: TextStyle(color: Colors.grey.shade600)),
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.black87),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, style: const TextStyle(color: Colors.black87)),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
   Widget _buildGradientTextField({
     required String hint, 
     required TextEditingController controller, 
@@ -285,7 +318,12 @@ class _FacultyEditScreenState extends State<FacultyEditScreen> with SingleTicker
                   _buildGradientTextField(hint: "Name of the faculty", controller: _nameController),
                   
                   _buildLabel("Position"),
-                  _buildGradientTextField(hint: "Position of the faculty", controller: _positionController),
+                  _buildGradientDropdown(
+                    value: _selectedPosition,
+                    hint: "Select position",
+                    items: const ["Assistant Professor", "Associate Professor", "Professor"],
+                    onChanged: (val) => setState(() => _selectedPosition = val),
+                  ),
                   
                   _buildDynamicListSection("Contact", "Contact Number", _contactControllers, TextInputType.phone),
                   _buildDynamicListSection("Email", "Contact Email", _emailControllers, TextInputType.emailAddress),
